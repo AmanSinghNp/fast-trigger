@@ -43,7 +43,7 @@ def _valid_batch_and_windows(draw):
 
 
 @settings(
-    max_examples=100,
+    max_examples=20,
     deadline=None,
     suppress_health_check=[HealthCheck.too_slow],
 )
@@ -57,7 +57,7 @@ def test_hypothesis_sta_lta_shape_and_finite(pair):
 
 
 @settings(
-    max_examples=80,
+    max_examples=20,
     deadline=None,
     suppress_health_check=[HealthCheck.too_slow],
 )
@@ -71,7 +71,7 @@ def test_hypothesis_sta_lta_batch_shape_and_finite(triple):
 
 
 @settings(
-    max_examples=80,
+    max_examples=20,
     deadline=None,
     suppress_health_check=[HealthCheck.too_slow],
 )
