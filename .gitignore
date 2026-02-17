@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+htmlcov/
+*.log
+
+# Virtual environments
+.venv/
+venv/
+
+# Build artifacts
+build/
+build-*/
+build-phase*/
+build_phase*/
+build_log*.txt
+_skbuild/
+dist/
+*.whl
+
+# CMake / C++
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+*.obj
+*.lib
+*.exp
+*.dll
+*.exe
+*.pdb
+
+# IDE/editor
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,47 @@
+name: release
+
+on:
+  push:
+    tags:
+      # Release tags must be prefixed with "v" (e.g., v0.1.0).
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Build artifacts
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+
+      - name: Validate artifacts before publish
+        run: |
+          python -m pip install --upgrade twine
+          python -m twine check dist/*
+          python -m pip install --force-reinstall dist/*.whl
+          python -c "import numpy as np; import fast_trigger; x=np.array([0.0,1.0,-2.0,3.0],dtype=np.float64); y=fast_trigger.compute_sta_lta(x, sta_len=1, lta_len=2); b=np.vstack([x,x]); z=fast_trigger.compute_sta_lta_batch(b, sta_len=1, lta_len=2); assert y.shape==x.shape and z.shape==b.shape and np.all(np.isfinite(y)) and np.all(np.isfinite(z))"
+          python -m pip uninstall -y fast-trigger
+          python -m pip install --force-reinstall dist/*.tar.gz
+          python -c "import numpy as np; import fast_trigger; x=np.array([0.0,1.0,-2.0,3.0],dtype=np.float64); y=fast_trigger.compute_sta_lta(x, sta_len=1, lta_len=2); b=np.vstack([x,x]); z=fast_trigger.compute_sta_lta_batch(b, sta_len=1, lta_len=2); assert y.shape==x.shape and z.shape==b.shape and np.all(np.isfinite(y)) and np.all(np.isfinite(z))"
+
+      - name: Publish to PyPI (Trusted Publishing)
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*

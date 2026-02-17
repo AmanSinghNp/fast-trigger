@@ -1,0 +1,113 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "nanobind>=2.7.0"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "fast-trigger"
+version = "0.1.0"
+description = "High-performance seismic event detection using C++23"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {file = "LICENSE"}
+authors = [
+    {name = "amans"}
+]
+maintainers = [
+    {name = "amans"}
+]
+keywords = ["seismic", "sta-lta", "signal-processing", "earthquake", "nanobind", "cpp"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: C++",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=2.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8.0", "hypothesis>=6.0"]
+benchmark = ["asv>=0.6"]
+dev = ["pre-commit>=4.1", "ruff>=0.9", "mypy>=1.15"]
+
+[project.urls]
+Homepage = "https://github.com/AmanSinghNp/fast-trigger"
+Repository = "https://github.com/AmanSinghNp/fast-trigger"
+Issues = "https://github.com/AmanSinghNp/fast-trigger/issues"
+Changelog = "https://github.com/AmanSinghNp/fast-trigger/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/AmanSinghNp/fast-trigger#readme"
+
+[tool.scikit-build]
+cmake.minimum-version = "3.31"
+cmake.build-type = "Release"
+wheel.packages = ["src/fast_trigger"]
+sdist.include = [
+    "CMakeLists.txt",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "ROADMAP.md",
+    "cpp/**",
+    "src/fast_trigger/**",
+    "tests/**",
+]
+
+# Windows-specific overrides
+[[tool.scikit-build.overrides]]
+if.platform-system = "win32"
+cmake.build-type = "Release"  # Force Release on Windows
+
+[tool.scikit-build.cmake.define]
+CMAKE_CXX_STANDARD = "23"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["build*", ".venv", "_skbuild", ".git", ".hypothesis"]
+addopts = "-ra"
+markers = [
+    "slow: longer-running property tests",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+src = ["src", "tests"]
+extend-exclude = ["build*", "dist", "_skbuild", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = false
+warn_unused_ignores = true
+check_untyped_defs = false
+ignore_missing_imports = true
+files = ["src/fast_trigger"]
+
+[tool.cibuildwheel]
+build = "cp312-* cp313-*"
+skip = "pp* *-musllinux_*"
+test-command = "python -c \"import numpy as np; import fast_trigger; x=np.array([0.0,1.0,-2.0,3.0],dtype=np.float64); y=fast_trigger.compute_sta_lta(x, sta_len=1, lta_len=2); b=np.vstack([x,x]); z=fast_trigger.compute_sta_lta_batch(b, sta_len=1, lta_len=2); assert y.shape==x.shape and z.shape==b.shape and np.all(np.isfinite(y)) and np.all(np.isfinite(z))\""
+build-verbosity = 1
+
+[tool.cibuildwheel.linux]
+archs = ["x86_64"]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
+
+[tool.cibuildwheel.macos]
+archs = ["x86_64", "arm64"]
